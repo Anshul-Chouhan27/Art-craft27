@@ -4,13 +4,14 @@ import morgan from "morgan";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-import { connectDB } from "./config_db.js";
-import productsRouter from "./routes/products.js";
-import authRouter from "./routes/auth.js";
+import { connectDB } from "../config_db.js";
+import productsRouter from "../routes/products.js";
+import authRouter from "../routes/auth.js";
+import serverless from "serverless-http";
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 5000;
+//const PORT = process.env.PORT || 5000;
 const ORIGIN = process.env.CLIENT_ORIGIN || "*";
 
 app.use(cors({ origin: ORIGIN }));
@@ -27,9 +28,11 @@ app.get("/", (req, res) => res.json({ status: "ok", message: "ArtShop API v3" })
 app.use("/api/auth", authRouter);
 app.use("/api/products", productsRouter);
 
-const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/artshop";
+const uri = process.env.MONGODB_URI || "*";
 connectDB(uri).then(() => {
   console.log("connected")
 });
 
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+//app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+
+export const handler = serverless(app);
