@@ -11,7 +11,6 @@ import serverless from "serverless-http";
 
 dotenv.config();
 const app = express();
-//const PORT = process.env.PORT || 5000;
 const ORIGIN = process.env.CLIENT_ORIGIN || "*";
 
 app.use(cors({ origin: ORIGIN }));
@@ -28,11 +27,11 @@ app.get("/", (req, res) => res.json({ status: "ok", message: "ArtShop API v3" })
 app.use("/api/auth", authRouter);
 app.use("/api/products", productsRouter);
 
-const uri = process.env.MONGODB_URI || "*";
+// DB connection
+const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/artshop";
 connectDB(uri).then(() => {
-  console.log("connected")
+  console.log("✅ MongoDB connected");
 });
 
-//app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
-
+// Export serverless handler
 export const handler = serverless(app);
