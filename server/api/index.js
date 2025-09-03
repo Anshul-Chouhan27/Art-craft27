@@ -1,3 +1,4 @@
+// api/index.js
 import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
@@ -20,18 +21,17 @@ app.use(morgan("dev"));
 // static uploads
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // routes
 app.get("/", (req, res) => res.json({ status: "ok", message: "ArtShop API v3" }));
 app.use("/api/auth", authRouter);
 app.use("/api/products", productsRouter);
 
-// DB connection
+// connect DB
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/artshop";
 connectDB(uri).then(() => {
-  console.log("✅ MongoDB connected");
+  console.log("✅ Connected to MongoDB");
 });
 
-// Export serverless handler
-export const handler = serverless(app);
+export default serverless(app);
