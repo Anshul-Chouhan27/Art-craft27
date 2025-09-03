@@ -7,7 +7,6 @@ import { fileURLToPath } from "url";
 import { connectDB } from "./config_db.js";
 import productsRouter from "./routes/products.js";
 import authRouter from "./routes/auth.js";
-import serverless from "serverless-http";
 
 dotenv.config();
 const app = express();
@@ -33,5 +32,4 @@ connectDB(uri).then(() => {
   console.log("connected")
 });
 
-//app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
-export default serverless(app)
+app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
