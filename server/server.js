@@ -27,7 +27,7 @@ app.get("/", (req, res) => res.json({ status: "ok", message: "ArtShop API v3" })
 app.use("/api/auth", authRouter);
 app.use("/api/products", productsRouter);
 
-const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/artshop";
+const uri = process.env.MONGODB_URI;
 connectDB(uri).then(() => {
   console.log("connected")
 });
