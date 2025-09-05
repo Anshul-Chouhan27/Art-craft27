@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { CloudinaryStorage } from "@fluidjs/multer-cloudinary";
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
