@@ -1,22 +1,13 @@
 import express from "express";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
 import Product from "../models/Product.js";
 import { requireAuth } from "../middleware/auth.js";
+import { storage } from "../configcloudinary.js";  // 👈 import cloudinary storage
+import { v2 as cloudinary } from "cloudinary";
 
 const router = express.Router();
 
-// Multer setup for local uploads
-const uploadDir = path.resolve("uploads");
-if(!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, Date.now() + ext);
-  }
-});
+// Multer setup with Cloudinary
 const upload = multer({ storage });
 
 // GET all products
@@ -33,7 +24,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const prod = await Product.findById(req.params.id);
-    if(!prod) return res.status(404).json({ error: "Not found" });
+    if (!prod) return res.status(404).json({ error: "Not found" });
     res.json(prod);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -44,7 +35,8 @@ router.get("/:id", async (req, res) => {
 router.post("/", requireAuth, upload.single("image"), async (req, res) => {
   try {
     const { title, price, description, buyUrl } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : "";
+    const image = req.file?.path || ""; // 👈 Cloudinary se url milega
+
     const p = await Product.create({ title, price, description, buyUrl, image });
     res.json(p);
   } catch (e) {
@@ -57,15 +49,19 @@ router.put("/:id", requireAuth, upload.single("image"), async (req, res) => {
   try {
     const { title, price, description, buyUrl } = req.body;
     const prod = await Product.findById(req.params.id);
-    if(!prod) return res.status(404).json({ error: "Not found" });
+    if (!prod) return res.status(404).json({ error: "Not found" });
 
-    // If new image uploaded, remove old file (best-effort)
     if (req.file) {
-      if (prod.image && prod.image.startsWith("/uploads/")) {
-        const oldPath = path.resolve("." + prod.image);
-        try { if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath); } catch(e){}
+      // Agar purani image Cloudinary me hai to delete kar sakte ho (optional)
+      if (prod.image && prod.image.includes("cloudinary.com")) {
+        const publicId = prod.image.split("/").pop().split(".")[0];
+        try {
+          await cloudinary.uploader.destroy("Art-Craft/" + publicId);
+        } catch (e) {
+          console.log("Cloudinary delete error", e.message);
+        }
       }
-      prod.image = `/uploads/${req.file.filename}`;
+      prod.image = req.file.path; // new image url
     }
 
     prod.title = title ?? prod.title;
@@ -85,11 +81,17 @@ router.delete("/:id", requireAuth, async (req, res) => {
   try {
     const deleted = await Product.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ error: "Not found" });
-    // remove image file if present
-    if (deleted.image && deleted.image.startsWith("/uploads/")) {
-      const imgPath = path.resolve("." + deleted.image);
-      try { if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath); } catch(e){}
+
+    // Agar image Cloudinary me hai to delete karo
+    if (deleted.image && deleted.image.includes("cloudinary.com")) {
+      const publicId = deleted.image.split("/").pop().split(".")[0];
+      try {
+        await cloudinary.uploader.destroy("Art-Craft/" + publicId);
+      } catch (e) {
+        console.log("Cloudinary delete error", e.message);
+      }
     }
+
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ error: e.message });

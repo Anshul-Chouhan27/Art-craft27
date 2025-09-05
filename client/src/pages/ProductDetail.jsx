@@ -3,10 +3,6 @@ import { useParams, Link } from 'react-router-dom'
 import { api } from '../api.js'
 import '../pages/Productdetails.css';
 
-
-// helper function to generate full image URL
-const imageUrl = (path) => path ? `http://localhost:5000${path}` : '';
-
 export default function ProductDetail() {
   const { id } = useParams();
   const [item, setItem] = useState(null);
@@ -36,35 +32,33 @@ export default function ProductDetail() {
   }
 
   return (
-    <>
-  <div className='container'>
-    <div className='detail'>
-      <div className='detail-img'>
-        <div className='detail-media'>
-          {item.image ? (
-            <img src={imageUrl(item.image)} alt={item.title} />
-          ) : (
-            <div className='thumb placeholder'>No Image</div>
-          )}
+    <div className='container'>
+      <div className='detail'>
+        <div className='detail-img'>
+          <div className='detail-media'>
+            {item.image ? (
+              <img src={item.image} alt={item.title} /> 
+            ) : (
+              <div className='thumb placeholder'>No Image</div>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div className='detail-info'>
-        <h2 className='headline'>{item.title}</h2>
-        <p className='sub'>{item.description}</p>
-        <p className='price-lg'>₹ {item.price?.toLocaleString()}</p>
+        <div className='detail-info'>
+          <h2 className='headline'>{item.title}</h2>
+          <p className='sub'>{item.description}</p>
+          <p className='price-lg'>₹ {item.price?.toLocaleString()}</p>
 
-        <div className='actions'>
-          <a className='btn brand' href={item.buyUrl} target='_blank' rel='noreferrer'>
-            Buy
-          </a>
-          <Link className='btn' to='/'>
-            Back
-          </Link>
+          <div className='actions'>
+            <a className='btn brand' href={item.buyUrl} target='_blank' rel='noreferrer'>
+              Buy
+            </a>
+            <Link className='btn' to='/'>
+              Back
+            </Link>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</>
   );
 }

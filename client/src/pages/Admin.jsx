@@ -60,6 +60,13 @@ export default function Admin(){
       <div className='grid'>
         {items.map(p=>(
           <div key={p._id} className='card'>
+            {p.image && (
+              <img 
+                src={p.image} 
+                alt={p.title} 
+                style={{ width:"100%", height:"200px", objectFit:"cover" }}
+              />
+            )}
             <div className='card-body'>
               <h4>{p.title}</h4>
               <p>{p.description}</p>

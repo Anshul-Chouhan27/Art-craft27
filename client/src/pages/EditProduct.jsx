@@ -70,7 +70,7 @@ export default function EditProduct() {
           <label>Current Image</label><br/>
           {product.image ? (
             <img 
-              src={`http://localhost:5000/${product.image}`} 
+              src={product.image} 
               alt="Current" 
               style={{ width:"150px", marginBottom:"10px" }}
             />

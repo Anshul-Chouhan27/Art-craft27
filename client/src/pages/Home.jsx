@@ -29,7 +29,7 @@ export default function Home(){
               {p.image ? (
                 <img
                   className="thumb"
-                  src={`http://localhost:5000${p.image}`}
+                  src={p.image}   // ✅ Cloudinary URL directly
                   alt={p.title}
                 />
               ) : (
@@ -43,8 +43,6 @@ export default function Home(){
 
               <div className="meta">
                 <span className="price">₹ {p.price?.toLocaleString()}</span>
-
-                {/* Buy Now corner me */}
                 {p.buyUrl && (
                   <a
                     className="btn brand"
@@ -57,7 +55,6 @@ export default function Home(){
                 )}
               </div>
 
-              {/* Center me View button */}
               <div className="actions">
                 <Link to={`/product/${p._id}`} className="btn">
                   View
