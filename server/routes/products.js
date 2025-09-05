@@ -2,8 +2,7 @@ import express from "express";
 import multer from "multer";
 import Product from "../models/Product.js";
 import { requireAuth } from "../middleware/auth.js";
-import { storage } from "../configcloudinary.js";  // 👈 import cloudinary storage
-import { v2 as cloudinary } from "cloudinary";
+import { storage } from "../config_cloudinary.js";  // ✅ cloudinary storage import
 
 const router = express.Router();
 
@@ -35,8 +34,7 @@ router.get("/:id", async (req, res) => {
 router.post("/", requireAuth, upload.single("image"), async (req, res) => {
   try {
     const { title, price, description, buyUrl } = req.body;
-    const image = req.file?.path || ""; // 👈 Cloudinary se url milega
-
+    const image = req.file ? req.file.path : ""; // ✅ Cloudinary gives full URL in .path
     const p = await Product.create({ title, price, description, buyUrl, image });
     res.json(p);
   } catch (e) {
@@ -52,16 +50,7 @@ router.put("/:id", requireAuth, upload.single("image"), async (req, res) => {
     if (!prod) return res.status(404).json({ error: "Not found" });
 
     if (req.file) {
-      // Agar purani image Cloudinary me hai to delete kar sakte ho (optional)
-      if (prod.image && prod.image.includes("cloudinary.com")) {
-        const publicId = prod.image.split("/").pop().split(".")[0];
-        try {
-          await cloudinary.uploader.destroy("Art-Craft/" + publicId);
-        } catch (e) {
-          console.log("Cloudinary delete error", e.message);
-        }
-      }
-      prod.image = req.file.path; // new image url
+      prod.image = req.file.path; // ✅ update Cloudinary image URL
     }
 
     prod.title = title ?? prod.title;
@@ -82,16 +71,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
     const deleted = await Product.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ error: "Not found" });
 
-    // Agar image Cloudinary me hai to delete karo
-    if (deleted.image && deleted.image.includes("cloudinary.com")) {
-      const publicId = deleted.image.split("/").pop().split(".")[0];
-      try {
-        await cloudinary.uploader.destroy("Art-Craft/" + publicId);
-      } catch (e) {
-        console.log("Cloudinary delete error", e.message);
-      }
-    }
-
+    // ⚠️ Cloudinary se delete karna chaho to alag code lagana padega
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -99,3 +79,4 @@ router.delete("/:id", requireAuth, async (req, res) => {
 });
 
 export default router;
+

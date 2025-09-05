@@ -1,5 +1,5 @@
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -10,12 +10,10 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "Art-Craft", // apne dusre project ke liye folder
+    folder: "Art-Craft", // apne project ka folder naam
     allowed_formats: ["jpg", "png", "jpeg"],
   },
 });
 
-module.exports={
-    cloudinary,
-    storage
-}
+export { cloudinary, storage };
+
